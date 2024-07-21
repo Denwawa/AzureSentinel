@@ -1,4 +1,4 @@
-# SIEM & Honeypot | Microsoft Azure Sentinel Attack Map
+# Microsoft Azure Sentinel Attack Map
 
 ### Summary
 This is a home lab project I worked on in ordder to better understand Microsoft's Azure Sentinel SIEM. I included all of the steps taken to complete this lab and a high level overview of the project can see in the video linked below!
