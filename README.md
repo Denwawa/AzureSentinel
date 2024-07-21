@@ -1,4 +1,3 @@
-![](images/honeycomb_sentinel2.png)
 # SIEM & Honeypot | Microsoft Azure Sentinel Attack Map
 
 ### Summary
@@ -98,12 +97,12 @@ In order to map the geolocation of the attackers, I needed to create a custom lo
 - 
 ![](images/MMA_Based_Logs.JPG)
 
+
 ![](images/custom_log.png)
 
+
 ## Step 10: Query the Custom Log
-- In Log Analytics Workspaces go to the created workspace (honeypot-log) > Logs
-- Run a query to see the available data (FAILED_RDP_WITH_GEO_CL)
-> May take some time for Azure to sync VM and Log Analytics
+- Ensured the logs were showing in Log Analytics through a query.
 
 ![](images/failed_rdp_with_geo.png)
 
@@ -164,14 +163,3 @@ FAILED_RDP_WITH_GEO_CL | summarize event_count=count() by sourcehost_CF, latitud
 > Custom Powershell script parsing data from 3rd party API
 
 ![](images/rdp_script.png)
-
-## Step 13: Deprovision Resources
-> VERY IMPORTANT - Do NOT skip!
-- Search for "Resource groups" > name of resource group (honeypotlab) > **Delete resource group**
-- Type the name of the resource group ("honeypotlab") to confirm deletion
-- Check the **Apply force delete for selected Virtual machines and Virtual machine scale sets** box
-- Select **Delete**
-
-![](images/delete_resource_group.png)
-
-> If resources are not deleted they will eat up the free credits and fees may start to accumulate.
