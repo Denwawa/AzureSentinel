@@ -2,18 +2,18 @@
 # SIEM & Honeypot | Microsoft Azure Sentinel Attack Map
 
 ### Summary
-SIEM stands for Security Information and Event Management System. It is a solution that helps organizations detect, analyze, and respond to security threats before they harm business operations. It is a tool that collects event log data from a range of sources within a network such as Firewalls, IDS/IPS, Identity solutions, etc. This allows the security professionals to monitor, prioritize and remediate potential threats in real-time. A honeypot is a security mechanism that creates a virtual trap in a controlled and safe environment to lure attackers. An intentionally compromised computer system to study how attackers work, examine different types of threats and improve security policies. This lab's purpose is to understand how to collect honeypot attack log data, query it in a SIEM and display it in a manner that is easy to understand such data. In this case it will be displayed in a world map by event count and geolocation.
+This is a home lab project I worked on in ordder to better understand Microsoft's Azure Sentinel SIEM. I included all of the steps taken to complete this lab and a high level overview of the project can see in the video linked below!
 
-### Learning Objectives:
+### The following skills were utilized:
 - Configuration & Deployment of Azure resources such as virtual machines, Log Analytics Workspaces, and Azure Sentinel
 - Hands-on experience and working knowledge of a SIEM Log Management Tool (Microsoft's Azure Sentinel)
 - Understand Windows Security Event logs
 - Utilization of KQL to query logs
 - Display attack data on a dashboard with Workbooks (World Map)
 
-### Tools & Requirements:
+### Tools Utilized:
 
-1. Microsoft Azure Subscription 
+1. Microsoft Azure
 2. Azure Sentinel
 3. Kusto Query Language (KQL - Used to build world map)
 4. Network Security Groups (Layer 4/3 Firewall in Azure)
@@ -26,149 +26,75 @@ SIEM stands for Security Information and Event Management System. It is a soluti
 ### Overview:
 ![](images/SIEM%20Lab.png)
 
-## Step 1: Create a Microsoft Azure Subscription: [Azure](https://azure.microsoft.com/en-us/free/)
-> Free 200$ Credit for 30 days
-
-![](images/subscription.png)
-
-## Step 2: Create a Honeypot Virtual Machine
-> Exposed Windows VM
+## Step 1: Created a Honeypot Virtual Machine
+- Signed into portal.azure.com
+- Searched for "virtual machines" 
+- Selected Create > Azure virtual machine
 
 ![](images/create_azure_vm.png)
 
-### Basics
-
-- Go to `portal.azure.com`
-- Search for "virtual machines" 
-- Create > Azure virtual machine
-#### Project details
-- Create new resource group and name it (honeypotlab)
-> A resource group is a collection of resources that share the same lifecycle, permissions, and policies.
-#### Instance details
-- Name your VM (honeypot-vm)
-- Select a recommended region ((US) East US 2)
-- Availability options: No infrastructure redundancy required
-- Security type: Standard
-- Image: Windows 10 Pro, version 21H2 - x62 Gen2
-- VM Architecture: x64
-- Size: Default is okay (Standard_D2s_v3 – 2vcpus, 8 GiB memory)
-#### Administrator account
-- Create a username and password for virtual machine
-> IMPORTANT NOTE: These credentials will be used to log into the virtual machine (Keep them handy)
-#### Inbound port rules
-- Public inbound ports: Allow RDP (3389)
-#### Licensing
-- Confirm licensing 
-- Select **Next : Disks >**
+### Virtual Machine Details
+The following information is what I used to setup the initial virtual machine
 
 ![](images/vm1.png)
 
-### Disks 
-- Leave all defaults
-- Select **Next : Networking >**
-
 ### Networking
 #### Network interface
+I edited the NIC network security group to allow all incoming traffick to into the virtual machine. 
 - NIC network security group: Advanced > Create new
-> A network security group contains security rules that allow or deny inbound network traffic to, or outbound network traffic from, the virtual machine. In other words, security rules management.
-- Remove Inbound rules (1000: default-allow-rdp) by clicking three dots
-- Add an inbound rule
-- Destination port ranges: * (wildcard for anything)
-- Protocol: Any
-- Action: Allow
-- Priority: 100 (low)
-- Name: Anything (ALLOW_ALL_INBOUND)
-- Select **Review + create**
-
+- I Removed the Default Inbound rules. 
+- The Destination port ranges needed to be changed to, "*", as this is a wildcard allowing ALL ports to be opened.
+- Also set the Priority: 100 (low)
 ![](images/network_sec_grp.png)
 
 > Configuring the firewall to allow traffic from anywhere will make the VM easily discoverable.
 
-## Step 3: Create a Log Analytics Workspace
-- Search for "Log analytics workspaces"
-- Select **Create Log Analytics workspace**
-- Put it in the same resource group as VM (honeypotlab)
-- Give it a desired name (honeypot-log)
-- Add to same region (East US 2)
-- Select **Review + create**
-
+## Step 3: Created a Log Analytics Workspace
+- Searching for "Log analytics workspaces" and created the Log Analytics Workspace and ensured it had the same resource group as VM (honeypotlab)
 ![](images/log_an_wrk.png)
 
 > The Windows Event Viewer logs will be ingested into Log Analytics workspaces in addition to custom logs with geographic data to map attacker locations.
 
-## Step 4: Configure Microsoft Defender for Cloud
-- Search for "Microsoft Defender for Cloud"
-- Scroll down to "Environment settings" > subscription name > log analytics workspace name (log-honeypot)
+## Step 4: Configured Microsoft Defender for Cloud
+- In "Microsoft Defender for Cloud", you will need to change the settings in order to allow the server to ingest logs into the Log ANalytics Workspace.
+- Scroll dow "Environment settings" > subscription name > log analytics workspace name (log-honeypot)
 
 ![](images/mcrsft_dfndr.png)
 
 #### Settings | Defender plans
-- Cloud Security Posture Management: ON
-- Servers: ON
-- SQL servers on machines: OFF
-- Hit **Save**
+- You will need to turn on Servers in the Defender Plan, and leave SQL servers ON machines OFF 
 
 ![](images/defender_plans.png)
 
-#### Settings | Data collection
-- Select "All Events" 
-- Hit **Save**
+#### Settings | Configured Data collection
+- Select "All Events" to grab all events from EventViewer on the Virtual Machine
 
-## Step 5: Connect Log Analytics Workspace to Virtual Machine
-- Search for "Log Analytics workspaces"
-- Select workspace name (log-honeypot) > "Virtual machines" > virtual machine name (honeypot-vm)
-- Click **Connect**
+## Step 5: Connected Log Analytics Workspace to Virtual Machine
+- Navigated back to Log Analytics workspaces and under Virtual Machines, selected the virtual machine and connected.
 
 ![](images/log_an_vm_connect.png)
 
-## Step 6: Configure Microsoft Sentinel
-- Search for "Microsoft Sentinel"
-- Click **Create Microsoft Sentinel**
-- Select Log Analytics workspace name (honeypot-log)
-- Click **Add**
+## Step 6: Configured Microsoft Sentinel
+- Searched for "Microsoft Sentinel" and created the enviornment. Also linked the Log Analytics workspace to Microsoft Sentinel
 
 ![](images/sentinel_log.png)
 
-## Step 7: Disable the Firewall in Virtual Machine
-- Go to Virtual Machines and find the honeypot VM (honeypot-vm)
-- By clicking on the VM copy the IP address
-- Log into the VM via Remote Desktop Protocol (RDP) with credentials from step 2
-- Accept Certificate warning
-- Select NO for all **Choose privacy settings for your device**
-- Click **Start** and search for "wf.msc" (Windows Defender Firewall)
-- Click "Windows Defender Firewall Properties"
-- Turn Firewall State OFF for **Domain Profile** **Private Profile** and **Public Profile**
-- Hit **Apply** and **Ok**
-- Ping VM via Host's command line to make sure it is reachable `ping -t <VM IP>`
+## Step 7: Disabled the Firewall in Virtual Machine
+- Connected to the Virtual Machine using the public IP address and on my desktop through Windows RDP. Signed in using the credentials created and disabled Windows Firewall. Ensured it was disabled by using the 'ping -t' command on my desktop, ensuring I was able to reach the external IP address of the VM.
 
 ![](images/defender_off.png)
 
 ## Step 8: Scripting the Security Log Exporter
-- In VM open Powershell ISE
-- Set up Edge without signing in
-- Copy [Powershell script](https://github.com/joshmadakor1/Sentinel-Lab/blob/main/Custom_Security_Log_Exporter.ps1) into VM's Powershell (Written by Josh Madakor)
-- Select **New Script** in Powershell ISE and paste script
-- Save to Desktop and give it a name (Log_Exporter)
+- I needed to link the ipgeolocation api to the desktop in order to create a log file I could ingest into Azure Sentinel. I was able to find a script that allowed me to do so. I changed the API Key in the powershell script and saved it to the VM's desktop. After saved, I was able to run the script.
 
 ![](images/powershell_script.png)
 
-- Make an account with [Free IP Geolocation API and Accurate IP Lookup Database](https://ipgeolocation.io/)
-> This account is free for 1000 API calls per day. Paying 15.00$ will allow 150,000 API calls per month.
-- Copy API key once logged in and paste into script line 2: `$API_KEY = "<API key>"`
-- Hit **Save**
-- Run the PowerShell ISE script (Green play button) in the virtual machine to continuously produce log data
-
-![](images/ipgeolocation.png)
-
 > The script will export data from the Windows Event Viewer to then import into the IP Geolocation service. It will then extract the latitude and longitude and then create a new log called failed_rdp.log in the following location: C:\ProgramData\failed_rdp.log
 
-## Step 9: Create Custom Log in Log Analytics Workspace
-- Create a custom log to import the additional data from the IP Geolocation service into Azure Sentinel
-- Search "Run" in VM and type "C:\ProgramData"
-- Open file named "failed_rdp" hit **CTRL + A** to select all and **CTRL + C** to copy selection
-- Open notepad on Host PC and paste contents
-- Save to desktop as "failed_rdp.log"
-- In Azure go to Log Analytics Workspaces > Log Analytics workspace name (honeypot-log) > Custom logs > **Add custom log**
+## Step 9: Created Custom Log in Log Analytics Workspace
+In order to map the geolocation of the attackers, I needed to create a custom log to import the data from the IP Geolocation service into Azure Sentinel.
+- First I would need sample logs on the VM in order to create these custom logs. From the script, they could be found on C:\ProgramData and I was able to grab the logs.
+- Back in Azure, in Log Analytics workspaces. Under Tables, I created a new MMA-based custom log
 #### Sample
 - Select Sample log saved to Desktop (failed_rdp.log) and hit **Next**
 #### Record delimiter
