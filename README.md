@@ -95,16 +95,8 @@ I edited the NIC network security group to allow all incoming traffick to into t
 In order to map the geolocation of the attackers, I needed to create a custom log to import the data from the IP Geolocation service into Azure Sentinel.
 - First I would need sample logs on the VM in order to create these custom logs. From the script, they could be found on C:\ProgramData and I was able to grab the logs.
 - Back in Azure, in Log Analytics workspaces. Under Tables, I created a new MMA-based custom log
-#### Sample
-- Select Sample log saved to Desktop (failed_rdp.log) and hit **Next**
-#### Record delimiter
-- Review sample logs in Record delimiter and hit **Next** 
-#### Collection paths
-- Type > Windows
-- Path > "C:\ProgramData\failed_rdp.log"
-#### Details
-- Give the custom log a name and provide description (FAILED_RDP_WITH_GEO) and hit **Next**
-- Hit **Create**
+- 
+![](images/MMA_Based_Logs.JPG)
 
 ![](images/custom_log.png)
 
