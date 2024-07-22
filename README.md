@@ -125,7 +125,14 @@ FAILED_RDP_WITH_GEO_CL | summarize event_count=count() by sourcehost_CF, latitud
 ```
 
 - I then went to **Visualization** and selected **Map**
-- I was then able to onfigure the map settings to match the fields I created from the logs
+- I was then able to configure the map settings to match the fields I created from the logs
+
+## Final Results and Conclusion
+> Although this is a lab, I have used these findings for creating and enforcing policies for organizations by:
+- Configuring conditional access policies can be created in Azure in order to restrict access from certain regions.
+- From logs generated, we can see users are trying to login by entering common passwords. Enforcing a password policy, password manager, and multi-factor authentication are typical steps taken to prevent access.
+- Because there were many open ports on the virtual machine, running network and credentialed scans on endpoints can prevent organizations from having attackers discover their devices using their external IP Address
 
 ![](images/failed_rdp_map.png)
+
 
