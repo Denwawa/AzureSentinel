@@ -101,65 +101,31 @@ In order to map the geolocation of the attackers, I needed to create a custom lo
 ![](images/custom_log.png)
 
 
-## Step 10: Query the Custom Log
+## Step 10: Queried the Custom Log
 - Ensured the logs were showing in Log Analytics through a query.
 
 ![](images/failed_rdp_with_geo.png)
 
 ## Step 11: Extract Fields from Custom Log 
-> The RawData within a log contains information such as latitude, longitude, destinationhost, etc. Data will have to be extracted to create separate fields for the different types of data
-- Right click any of the log results
-- Select **Extract fields from 'FAILED_RDP_WITH_GEO_CL'**
-- Highlight ONLY the value after the ":" 
-- Name the **Field Title** the name of the field of the value
-- Under **Field Type** select the appropriate data type
-- Hit **Extract**
-- If the search results data looks good click the **Save extraction** button
-- Do this for ALL available fields in RawData
-> NOTE: If one of the search results is not correct select **Modify this highlight** (upper right corner of result) and highlight the correct value. Otherwise go to **Custom logs > Custom fields** Accept warning of unsaved edits and delete field. Redo extraction for deleted field.
+> The RawData within a log contains information such as latitude, longitude, destinationhost, etc. I needed to separate these fields in order to plot on a map in Azure Sentinel. I perofrmed the following steps to do so:
+- Right clicked on log reuslts
+- Extracted the field and selected the appropriate data
+- I was able to give the Field a title and extract the raw data into the new field.
+- Repeated these steps until I created all the necessary fields
 
 ![](images/data_extraction.png)
 
-## Step 12: Map Data in Microsoft Sentinel
-- Go to Microsoft Sentinel to see the Overview page and available events
-- Click on **Workbooks** and **Add workbook** then click **Edit**
-- Remove default widgets (Three dots > Remove)
-- Click **Add > Add query** 
-- Copy/Paste the following query into the query window and **Run Query**
+## Step 12: Mapped Data in Microsoft Sentinel
+- In Microsoft Sentinel I created a new workbook and ran the following query to import the data from the custom log.
 
 ```KQL
 FAILED_RDP_WITH_GEO_CL | summarize event_count=count() by sourcehost_CF, latitude_CF, longitude_CF, country_CF, label_CF, destinationhost_CF
 | where destinationhost_CF != "samplehost"
 | where sourcehost_CF != ""
 ```
-> Kusto Query Language (KQL) - Azure Monitor Logs is based on Azure Data Explorer. The language is designed to be easy to read and use with some practice writing queries and basic guidance.
 
-- Once results come up click the **Visualization** dropdown menu and select **Map**
-- Select **Map Settings** for additional configuration
-#### Layout Settings
-- **Location info using** > Latitude/Longitude
-- **Latitude** > latitude_CF
-- **Longitude** > longitude_CF
-- **Size by** > event_count
-#### Color Settings
-- **Coloring Type:** Heatmap 
-- **Color by** > event_count
-- **Aggregation for color** > Sum of values
-- **Color palette** > Green to Red
-#### Metric Settings
-- **Metric Label** > label_CF
-- **Metric Value** > event_count
-- Select **Apply** button and **Save and Close**
-- Save as "Failed RDP World Map" in the same region and under the resource group (honeypotlab)
-- Continue to refresh map to display additional incoming failed RDP attacks
-> NOTE: The map will only display Event Viewer's failed RDP attempts and not all the other attacks the VM may be receiving.
+- I then went to **Visualization** and selected **Map**
+- I was then able to onfigure the map settings to match the fields I created from the logs
 
 ![](images/failed_rdp_map.png)
 
-> Event Viewer Displaying Failed RDP logon attemps. EventID 4625
-
-![](images/event_viewer.png)
-
-> Custom Powershell script parsing data from 3rd party API
-
-![](images/rdp_script.png)
