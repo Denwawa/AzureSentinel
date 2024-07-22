@@ -130,8 +130,8 @@ FAILED_RDP_WITH_GEO_CL | summarize event_count=count() by sourcehost_CF, latitud
 ## Final Results and Conclusion
 > Although this is a lab, I have used these findings for creating and enforcing policies for organizations by:
 - Configuring conditional access policies can be created in Azure in order to restrict access from certain regions.
+- Implement vulnerability management solutions as running network and credentialed scans on endpoints can help remediate attackers from trying to enter through open ports or discovering this system. 
 - From logs generated, we can see users are trying to login by entering common passwords. Enforcing a password policy, password manager, and multi-factor authentication are typical steps taken to prevent access.
-- Because there were many open ports on the virtual machine, running network and credentialed scans on endpoints can prevent organizations from having attackers discover their devices using their external IP Address
 
 ![](images/failed_rdp_map.png)
 
